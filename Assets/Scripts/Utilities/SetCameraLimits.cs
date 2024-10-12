@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoomMove : MonoBehaviour {
-    public Vector2 cameraChange;  // Quanto a câmera deve se mover ao entrar na sala
-    public Vector3 playerChange;  // Quanto o jogador deve ser reposicionado
+public class SetCameraLimits : MonoBehaviour
+{
+    public Vector2 newMinPosition;
+    public Vector2 newMaxPosition;
     private CameraController cam;
 
     private void Start() {
@@ -15,10 +16,7 @@ public class RoomMove : MonoBehaviour {
     private void OnTriggerEnter2D(Collider2D collision) {
         if (collision.CompareTag("Player")) {
             // Atualiza os limites da câmera com base na sala
-            cam.SetCameraLimits(cam.minPosition + cameraChange, cam.maxPosition + cameraChange);
-
-            // Reposiciona o jogador
-            collision.transform.position += playerChange;
+            cam.SetCameraLimits(newMinPosition, newMaxPosition);
         }
     }
 }

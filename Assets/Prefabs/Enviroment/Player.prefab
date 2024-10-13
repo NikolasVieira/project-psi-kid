@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3260589220642799526}
   - component: {fileID: 8832973107698342729}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Sprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 5933713668052083872}
   - component: {fileID: 89393499516969809}
   - component: {fileID: 1438296872042563416}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -206,3 +206,7 @@ MonoBehaviour:
   moveSpeed: 5
   jumpForce: 7
   isGrounded: 0
+  groundCheckDistance: 0.2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 0

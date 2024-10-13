@@ -1,35 +1,42 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Elevator : MonoBehaviour {
-    public float moveSpeed = 2f;  // Velocidade do movimento do elevador
-    public Transform lowerPosition;  // Posição final (mais baixa) do elevador
-    public Transform upperPosition;  // Posição inicial (mais alta) do elevador
-    private bool isMovingDown = false;  // Controle se o elevador está se movendo para baixo
+    public float speed = 4f; // Velocidade de descida
+    private bool isPlayerOnPlatform = false; // Verifica se o jogador está na plataforma
+    private Rigidbody2D rb;
+    private Transform player; // Armazena a referência ao jogador
 
     private void Start() {
-        // Garante que o elevador comece na posição superior
-        transform.position = upperPosition.position;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision) {
-        if (collision.CompareTag("Player"))  // Verifica se o objeto colidido é o jogador
-        {
-            isMovingDown = true;  // Inicia o movimento do elevador
-        }
+        rb = GetComponent<Rigidbody2D>();
     }
 
     private void Update() {
-        if (isMovingDown) {
-            // Move o elevador para a posição mais baixa
-            Vector3 newElevatorPosition = Vector3.MoveTowards(transform.position, lowerPosition.position, moveSpeed * Time.deltaTime);
-            transform.position = newElevatorPosition;
+        if (isPlayerOnPlatform && player != null) {
+            // Move a plataforma para baixo
+            Vector2 targetPosition = rb.position + new Vector2(0, -speed * Time.deltaTime);
+            rb.MovePosition(targetPosition);
 
-            // Verifica se o elevador chegou na posição mais baixa
-            if (Vector3.Distance(transform.position, lowerPosition.position) < 0.01f) {
-                isMovingDown = false;  // Para o movimento quando atinge o limite inferior
-            }
+            // Mova o jogador junto com a plataforma na mesma velocidade
+            Vector2 playerPosition = player.position;
+            player.position = new Vector2(playerPosition.x, playerPosition.y - speed * Time.deltaTime);
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision) {
+        // Verifica se o objeto que colidiu é o jogador
+        if (collision.gameObject.CompareTag("Player")) {
+            isPlayerOnPlatform = true;
+            player = collision.transform; // Armazena a referência ao jogador
+            player.SetParent(transform); // Faz o jogador ser filho da plataforma
+        }
+    }
+
+    private void OnCollisionExit2D(Collision2D collision) {
+        // Verifica se o jogador saiu da plataforma
+        if (collision.gameObject.CompareTag("Player")) {
+            isPlayerOnPlatform = false;
+            player.SetParent(null); // Remove o jogador da plataforma
+            player = null; // Limpa a referência ao jogador
         }
     }
 }

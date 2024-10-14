@@ -8,32 +8,45 @@ public abstract class PlayerState {
 
 public class GroundedState : PlayerState {
     public override void HandleInput(PlayerController player) {
-        PlayerInput input = player.GetPlayerInput();  // Acessa o PlayerInput a partir do PlayerController
-
-        // Movimento lateral
+        PlayerInput input = player.GetPlayerInput();
         float moveInput = input.GetHorizontalInput();
         player.Move(moveInput);
 
-        // Verifica se o botão de pulo foi pressionado
-        if (input.IsJumpPressed() && player.isGrounded) {
+        if (input.IsJumpPressed() && player.CheckIfGrounded()) {
             player.Jump();
-            player.SetState(new JumpingState());  // Muda para o estado de pulo
+            player.SetState(new JumpingState());
+        }
+
+        if (input.IsPausePressed()) {
+            player.Pause();
+            player.SetState(new PauseState());
         }
     }
 }
 
 public class JumpingState : PlayerState {
     public override void HandleInput(PlayerController player) {
-        // Obtém o PlayerInput
         PlayerInput input = player.GetPlayerInput();
-
-        // Movimento lateral enquanto está no ar
         float moveInput = input.GetHorizontalInput();
         player.Move(moveInput);
 
-        // Checar se o jogador aterrissou
-        if (player.isGrounded) {
+        if (player.CheckIfGrounded()) {
             player.SetState(new GroundedState());
+        }
+
+        if (input.IsPausePressed()) {
+            player.Pause();
+            player.SetState(new PauseState());
+        }
+    }
+}
+
+public class PauseState : PlayerState {
+    public override void HandleInput(PlayerController player) {
+        PlayerInput input = player.GetPlayerInput();
+
+        if (input.IsPausePressed()) {
+            player.Unpause();
         }
     }
 }

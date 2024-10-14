@@ -10,4 +10,8 @@ public class PlayerInput : MonoBehaviour {
     public bool IsJumpPressed() {
         return Input.GetKeyDown(KeyCode.Space);
     }
+
+    public bool IsPausePressed() {
+        return Input.GetKeyDown(KeyCode.Escape);
+    }
 }

@@ -1,72 +1,95 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
     public float moveSpeed = 5f;
     public float jumpForce = 7f;
     public float groundCheckDistance = 0.2f;
+    private bool isGrounded;
+    private float moveInput;
     public LayerMask groundLayer;
-    public PauseController pauseController;
+    public Transform groundCheck; // Ponto de verificação de solo
 
     private Rigidbody2D rb;
-    private PlayerInput playerInput;
     private PlayerState currentState;
+    private Animator animator;
 
-    void Start() {
+    public event Action<GameObject> OnTeleportRequest;
+
+    private void Awake() {
         rb = GetComponent<Rigidbody2D>();
-        rb.freezeRotation = true;
-        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
-
-        playerInput = GetComponent<PlayerInput>();
-        if (playerInput == null) {
-            Debug.LogError("PlayerInput não encontrado!");
+        animator = GetComponentInChildren<Animator>();
+        if (animator == null) {
+            Debug.LogError("Animator não encontrado em objetos filhos do PlayerController.");
         }
-        currentState = new GroundedState();
     }
 
-    void Update() {
-        if (currentState == null) {
-            Debug.LogError("Estado atual não foi inicializado!");
-            return;
+    private void Update() {
+        // Verifica se o jogador está no chão
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckDistance, groundLayer);
+
+        moveInput = Input.GetAxisRaw("Horizontal");
+        // Alterna as animações
+        HandleAnimations();
+
+        // Inverte a escala do sprite dependendo da direção do movimento
+        FlipSprite();
+        // Realiza o pulo
+        if (Input.GetButtonDown("Jump") && isGrounded) {
+            Jump();
         }
-
-        // Delega ao estado atual o controle do input e outras lógicas
-        currentState.HandleInput(this);
-
-        Debug.Log(currentState);
+    }
+    private void FixedUpdate() {
+        // Movimenta o jogador horizontalmente
+        MovePlayer();
     }
 
-    public void Move(float moveInput) {
-        if (moveInput != 0) {
-            transform.localScale = new Vector3(Mathf.Sign(moveInput), 1, 1);
-        }
+    private void MovePlayer() {
+        // Move o jogador de acordo com o input
         rb.velocity = new Vector2(moveInput * moveSpeed, rb.velocity.y);
+    }
+    private void OnEnable() {
+        PlayerInputHandler.OnJump += Jump;
+        PlayerInputHandler.OnInteraction += HandleInteraction;
+    }
+
+    private void OnDisable() {
+        PlayerInputHandler.OnJump -= Jump;
+    }
+
+    private void HandleInteraction() {
+        if (OnTeleportRequest != null) {
+            OnTeleportRequest.Invoke(gameObject);
+        }
     }
 
     public void Jump() {
-        rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        if (isGrounded) {
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+        }
     }
 
-    public bool CheckIfGrounded() {
-        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, groundLayer);
-        Debug.DrawRay(transform.position, Vector2.down * groundCheckDistance, Color.red);
-        return hit.collider != null;
+    private void HandleAnimations() {
+        if (isGrounded) {
+            animator.SetBool("isJumping", false);
+            if (moveInput != 0) {
+                // Se o jogador está se movendo
+                animator.SetBool("isWalking", true);
+            } else {
+                // Se o jogador não está se movendo
+                animator.SetBool("isWalking", false);
+            }
+        } else {
+            // Se o jogador está no ar
+            animator.SetBool("isJumping", true);
+        }
     }
-
-    public void Pause() {
-        pauseController.ShowPausePanel();
-    }
-
-    public void Unpause() {
-        pauseController.HidePausePanel();
-    }
-
-    public void SetState(PlayerState newState) {
-        currentState = newState;
-    }
-
-    public PlayerInput GetPlayerInput() {
-        return playerInput;
+    private void FlipSprite() {
+        // Inverte a direção do sprite com base no movimento horizontal
+        if (moveInput > 0) {
+            transform.localScale = new Vector3(1, 1, 1); // Normal
+        } else if (moveInput < 0) {
+            transform.localScale = new Vector3(-1, 1, 1); // Invertido
+        }
     }
 }

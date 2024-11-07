@@ -1,31 +1,43 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
+using Unity.VisualScripting;
 
 public class CameraController : MonoBehaviour {
-    public Transform target;  // Jogador ou objeto a seguir
-    public float smoothing = 0.5f;  // Suavidade do movimento da câmera
-    public Vector2 maxPosition;  // Limite máximo da câmera
-    public Vector2 minPosition;  // Limite mínimo da câmera
+    public CinemachineVirtualCamera[] cameras;
+    public CinemachineVirtualCamera startCamera;
+    public CinemachineVirtualCamera currentCamera;
 
-    private void LateUpdate() {
-        if (target != null)  // Garante que o alvo (jogador) está setado
-        {
-            // Calcula a nova posição da câmera
-            Vector3 targetPosition = new Vector3(target.position.x, target.position.y, transform.position.z);
-
-            // Aplica os limites impostos pela maxPosition e minPosition
-            targetPosition.x = Mathf.Clamp(targetPosition.x, minPosition.x, maxPosition.x);
-            targetPosition.y = Mathf.Clamp(targetPosition.y, minPosition.y, maxPosition.y);
-
-            // Move a câmera suavemente para a nova posição
-            transform.position = Vector3.Lerp(transform.position, targetPosition, smoothing * Time.deltaTime);
-        }
+    private void Start() {
+        currentCamera = startCamera;
     }
 
-    // Método para ajustar os limites dinamicamente
-    public void SetCameraLimits(Vector2 newMinPosition, Vector2 newMaxPosition) {
-        minPosition = newMinPosition;
-        maxPosition = newMaxPosition;
+    public void ChangeCam(int index) {
+        currentCamera.gameObject.SetActive(false);
+        currentCamera = cameras[index];
+        currentCamera.gameObject.SetActive(true);
+    }
+    public void NextCam() {
+        for (int i = 0; i < cameras.Length; i++)
+        {
+            if (cameras[i] == currentCamera)
+            {
+                currentCamera.gameObject.SetActive(false);
+                currentCamera = cameras[i+1];
+                currentCamera.gameObject.SetActive(true);
+                return;
+            }
+        }
+    }
+    public void PreviousCam() {
+        for (int i = 0; i < cameras.Length; i++) {
+            if (cameras[i] == currentCamera) {
+                currentCamera.gameObject.SetActive(false);
+                currentCamera = cameras[i - 1];
+                currentCamera.gameObject.SetActive(true);
+                return;
+            }
+        }
     }
 }

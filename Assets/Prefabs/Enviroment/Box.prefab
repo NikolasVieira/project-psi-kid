@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3060484094745005997}
   - component: {fileID: 7229712770311318177}
   m_Layer: 6
-  m_Name: boxUnselected (1)
+  m_Name: boxSelected
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -204,8 +204,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 327f73584b4a8e64bb195995161153e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boxUnselected: {fileID: 7000424814883838291}
-  boxSelected: {fileID: 3746849774815183420}
   selectableLayer:
     serializedVersion: 2
     m_Bits: 64

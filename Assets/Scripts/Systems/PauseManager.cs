@@ -32,7 +32,7 @@ public class PauseManager : MonoBehaviour {
         pausePanelUI.SetActive(true);
     }
 
-    void ResumeGame() {
+    public void ResumeGame() {
         Time.timeScale = 1f; // Retoma o tempo normal do jogo
         isPaused = false;
         pausePanelUI.SetActive(false);

@@ -6,16 +6,12 @@ public class ObjectController : MonoBehaviour {
     private bool isDragging = false;
     private GameObject selectedObject;
     private Rigidbody2D selectedObjectRb;
-    public GameObject boxUnselected;
-    public GameObject boxSelected;
     public LayerMask selectableLayer;
     private Vector3 offset;
 
     void Start() {
         cam = Camera.main;
-        boxSelected.SetActive(false);
     }
-
 
     void Update() {
         HandleObjectSelection();
@@ -44,8 +40,9 @@ public class ObjectController : MonoBehaviour {
         selectedObjectRb.gravityScale = 0f;
         selectedObjectRb.velocity = Vector2.zero;
 
-        boxSelected.SetActive(true);
-        boxUnselected.SetActive(false);
+        // Ativa o sprite "selecionado" do objeto atual
+        selectedObject.transform.Find("boxSelected").gameObject.SetActive(true);
+        selectedObject.transform.Find("boxUnselected").gameObject.SetActive(false);
     }
 
     private void DeselectObject() {
@@ -55,8 +52,9 @@ public class ObjectController : MonoBehaviour {
             selectedObjectRb.gravityScale = 1f;
         }
 
-        boxSelected.SetActive(false);
-        boxUnselected.SetActive(true);
+        // Restaura o sprite "não selecionado" do objeto atual
+        selectedObject.transform.Find("boxSelected").gameObject.SetActive(false);
+        selectedObject.transform.Find("boxUnselected").gameObject.SetActive(true);
 
         selectedObject = null;
         selectedObjectRb = null;
